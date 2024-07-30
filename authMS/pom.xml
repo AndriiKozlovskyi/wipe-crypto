@@ -71,11 +71,6 @@
             <scope>runtime</scope>
         </dependency>
 <!--        Annotation and lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${org.projectlombok.version}</version>
-        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

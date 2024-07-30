@@ -14,45 +14,40 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping(value = "${base-path}/user")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-@Tag(name = "Example API", description = "API for demonstrating Swagger integration")
+@Tag(name = "User API", description = "Here you can find username, email and another profile info")
 public class UserController {
-    @GetMapping
-    public ResponseEntity<?> hello() {
-        return new ResponseEntity<>("Hello world!", HttpStatus.OK);
-    }
-
     @Autowired
     private UserService userService;
     @Autowired
     private ModelMapper modelMapper;
 
-    @PostMapping("/save")
-    public ResponseEntity<?> save(@Valid @RequestBody RegisterRequest request) {
+    @PostMapping
+    public ResponseEntity<?> createUser(@Valid @RequestBody RegisterRequest request) {
         User user = null;
         try {
-            user = userService.saveUser(request);
+            user = userService.create(request);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
-        return ResponseEntity.ok(modelMapper.map(user, UserResponse.class));
-
+        UserResponse o = modelMapper.map(user, UserResponse.class);
+        System.out.println(o);
+        return ResponseEntity.ok(o);
     }
 
-//    @GetMapping("/getAll")
-//    public ResponseEntity<List<UserDto>> getAll() {
-//        return ResponseEntity.ok(userService.getAll().stream()
-//                .map(user -> modelMapper.map(user, UserDto.class)).toList());
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
+        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+    }
 
-//    @GetMapping("/getUserById/{id}")
-//    public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
-//        return ResponseEntity.ok(modelMapper.map(userService.getUserById(id), UserDto.class));
-//    }
-//
-//    @GetMapping("/getUserByEmail/{email}")
-//    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
-//        return ResponseEntity.ok(modelMapper.map(userService.getUserByEmail(email), UserDto.class));
-//    }
+    @GetMapping("/checkUsername")
+    public ResponseEntity<?> checkUsername(@RequestParam String username) {
+        return new ResponseEntity<>(userService.usernameExists(username), HttpStatus.OK);
+    }
+
+    @GetMapping("/checkEmail")
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        return new ResponseEntity<>(userService.emailExists(email), HttpStatus.OK);
+    }
 
     @GetMapping("/findBy/{identifier}")
     public ResponseEntity<AuthUserDto> findByIdentifier(@PathVariable String identifier) {
@@ -65,9 +60,9 @@ public class UserController {
 //        return ResponseEntity.ok(modelMapper.map(userService.updateUserById(request, file), UserDto.class));
 //    }
 
-//    @DeleteMapping("/deleteUserById/{id}")
-//    public ResponseEntity<Void> deleteUserById(@PathVariable String id) {
-//        userService.deleteUserById(id);
-//        return ResponseEntity.ok().build();
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUserById(@PathVariable Integer id) {
+        userService.deleteUserById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

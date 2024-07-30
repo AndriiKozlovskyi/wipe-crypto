@@ -26,7 +26,7 @@ public class AuthService {
 
     public TokenDto login(LoginRequest request) {
         var user = userServiceClient.getUserByIdentifier(request.getIdentifier());
-        var jwtToken = jwtService.generateToken(Objects.requireNonNull(user.getData()).getUsername());
+        var jwtToken = jwtService.generateToken(Objects.requireNonNull(user.getBody()).getUsername());
 
         return TokenDto.builder()
                 .token(jwtToken)
@@ -34,12 +34,6 @@ public class AuthService {
     }
 
     public RegisterDto register(RegisterRequest request) throws Exception {
-        BaseApiResponse<RegisterDto> response = userServiceClient.save(request);
-        if (response.getStatusCode() == HttpStatus.OK.value()) {
-            return response.getData();
-        } else {
-            String errorMessage = response.getErrorMessage();
-            throw new Exception(errorMessage);
-        }
+        return userServiceClient.createUser(request).getBody();
     }
 }

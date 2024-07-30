@@ -38,6 +38,23 @@ services:
       - postgres-user-db
       - eureka
 
+  project-ms-app:
+    container_name: project-ms-app
+    image: 'project-ms-app:latest'
+    build:
+      context: ./projectMS
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-project-db:5434/project
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres-project-db
+      - eureka
+    links:
+      - postgres-project-db
+      - eureka
+
   auth-ms-app:
     container_name: auth-service-app
     image: "auth-service-app:latest"
@@ -62,3 +79,15 @@ services:
     command: -p 5433
     ports:
       - "5433:5433"
+
+  postgres-project-db:
+    container_name: postgres-project-db
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: project
+    command: -p 5434
+    ports:
+      - "5434:5434"
+

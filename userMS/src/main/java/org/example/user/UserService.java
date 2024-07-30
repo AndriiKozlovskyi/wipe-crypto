@@ -17,17 +17,19 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    public User saveUser(RegisterRequest request) {
+    public User create(RegisterRequest request) {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setUsername(request.getUsername());
         user.setRole(Role.USER);
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        System.out.println(usernameExists(request.getUsername()));
+        if (usernameExists(request.getUsername())) {
+            System.out.println("Exception");
             throw new RuntimeException("User with username " + request.getUsername() + " already exists");
         }
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (emailExists(request.getEmail())) {
             throw new RuntimeException("User with email " + request.getEmail() + " already exists");
         }
 
@@ -50,18 +52,23 @@ public class UserService {
         return findUserByUsername(username);
     }
 
+    public boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean usernameExists(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
     public User getByIdentifier(String identifier) {
-        System.out.println("starting");
-        User user = userRepository.findByUsername(identifier)
+        return userRepository.findByUsername(identifier)
                 .or(() -> userRepository.findByEmail(identifier))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        System.out.println(user.toString());
-        return user;
     }
 
     public void deleteUserById(Integer id) {
         User toDelete = findUserById(id);
-        userRepository.save(toDelete);
+        userRepository.delete(toDelete);
     }
 
     protected User findUserById(Integer id) {

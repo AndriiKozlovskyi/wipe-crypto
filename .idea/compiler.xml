@@ -7,17 +7,28 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="emailSenderMS" />
-        <module name="auth-service" />
-        <module name="authMS" />
         <module name="eventMS" />
         <module name="taskMS" />
-        <module name="projectMS" />
-        <module name="userMS" />
         <module name="accountMS" />
         <module name="teamMS" />
+        <module name="notificatorMS" />
+      </profile>
+      <profile name="Annotation profile for parent-project" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.3.Final/mapstruct-processor-1.5.3.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
+        </processorPath>
+        <module name="auth-service" />
+        <module name="userMS" />
+        <module name="authMS" />
         <module name="eureka-server" />
         <module name="gateway" />
-        <module name="notificatorMS" />
+        <module name="projectMS" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -34,6 +45,7 @@
       <module name="eventMS" options="-parameters" />
       <module name="gateawayMS" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="parent-pom" options="-parameters" />
       <module name="projectMS" options="-parameters" />
       <module name="taskMS" options="-parameters" />
       <module name="teamMS" options="-parameters" />

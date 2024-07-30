@@ -1,8 +1,6 @@
 # Use an official Java runtime as a parent image
 FROM openjdk:17-jdk-slim
 
-WORKDIR /app
-
 # Set the working directory in the container
 ADD /target/userMS-1.0-SNAPSHOT.jar userMs1.jar
 
