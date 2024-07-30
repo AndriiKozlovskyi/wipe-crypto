@@ -20,6 +20,7 @@ public class ProjectService {
                 .orElseThrow(() -> new EntityNotFoundException("No found"));
         project.getMembersIds().add(userId);
 
+        //save to
         projectRepository.save(project);
     }
 
