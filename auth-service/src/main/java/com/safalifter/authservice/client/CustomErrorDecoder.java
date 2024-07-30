@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 public class CustomErrorDecoder {
 //    private final ObjectMapper mapper = new ObjectMapper();
-//
+
 //    @Override
 //    public Exception decode(String methodKey, Response response) {
 //        try (InputStream body = response.body().asInputStream()) {
