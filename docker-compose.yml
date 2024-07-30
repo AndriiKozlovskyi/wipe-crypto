@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  eureka:
+    image: "eureka-server"
+    container_name: eureka-server
+    build:
+      context: ./eureka-server
+    ports:
+      - "8761:8761"
+
+  gateway:
+    image: "gateway"
+    container_name: gateway
+    build:
+      context: ./gateway
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka
+
+  user-ms-app:
+    container_name: user-ms-app
+    image: 'user-ms-app:latest'
+    build:
+      context: ./userMS
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-user-db:5433/user
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-user-db
+      - eureka
+    links:
+      - postgres-user-db
+      - eureka
+
+  auth-ms-app:
+    container_name: auth-service-app
+    image: "auth-service-app:latest"
+    build:
+      context: ./auth-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka
+    links:
+      - eureka
+
+  postgres-user-db:
+    container_name: postgres-user-db
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: user
+    command: -p 5433
+    ports:
+      - "5433:5433"

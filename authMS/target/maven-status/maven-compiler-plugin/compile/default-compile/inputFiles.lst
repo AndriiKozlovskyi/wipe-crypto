@@ -1,0 +1,17 @@
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/controller/AuthController.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/service/RoleService.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/config/ApplicationConfig.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/repository/RoleRepository.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/dtos/requests/RegisterRequest.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/enums/RoleType.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/dtos/responses/AuthResponse.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/messaging/RabbitMQConfiguration.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/entity/Role.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/config/JwtAuthenticationFilter.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/dtos/requests/AuthRequest.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/entity/User.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/service/JwtService.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/service/AuthService.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/repository/UserRepository.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/config/SecurityConfig.java
+/home/towerka/IdeaProjects/wipe-crypto/authMS/src/main/java/com/authority/Application.java

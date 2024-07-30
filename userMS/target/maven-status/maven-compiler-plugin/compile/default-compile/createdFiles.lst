@@ -1,0 +1,15 @@
+org/example/dto/UserMessage.class
+org/example/user/dtos/UserResponse.class
+org/example/Main.class
+org/example/user/dtos/AuthUserDto.class
+org/example/exc/NotFoundException.class
+org/example/messaging/UserMessageProducer.class
+org/example/user/User$UserBuilder.class
+org/example/config/BeanConfig.class
+org/example/user/UserService.class
+org/example/user/User.class
+org/example/messaging/RabbitMQConfiguration.class
+org/example/user/UserController.class
+org/example/user/dtos/RegisterRequest.class
+org/example/enums/Role.class
+org/example/user/UserRepository.class

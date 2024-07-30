@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="emailSenderMS" />
+        <module name="auth-service" />
+        <module name="authMS" />
+        <module name="eventMS" />
+        <module name="taskMS" />
+        <module name="projectMS" />
+        <module name="userMS" />
+        <module name="accountMS" />
+        <module name="teamMS" />
+        <module name="eureka-server" />
+        <module name="gateway" />
+        <module name="notificatorMS" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="config" target="1.8" />
+      <module name="gateawayMS" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="accountMS" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
+      <module name="authMS" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
+      <module name="eventMS" options="-parameters" />
+      <module name="gateawayMS" options="-parameters" />
+      <module name="gateway" options="-parameters" />
+      <module name="projectMS" options="-parameters" />
+      <module name="taskMS" options="-parameters" />
+      <module name="teamMS" options="-parameters" />
+      <module name="userMS" options="-parameters" />
+    </option>
+  </component>
+</project>

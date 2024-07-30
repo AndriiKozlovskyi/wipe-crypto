@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/projectMS/pom.xml" />
+        <option value="$PROJECT_DIR$/eventMS/pom.xml" />
+        <option value="$PROJECT_DIR$/AccountMS/pom.xml" />
+        <option value="$PROJECT_DIR$/taskMS/pom.xml" />
+        <option value="$PROJECT_DIR$/teamMS/pom.xml" />
+        <option value="$PROJECT_DIR$/emailSenderMS/pom.xml" />
+        <option value="$PROJECT_DIR$/notificatorMS/pom.xml" />
+        <option value="$PROJECT_DIR$/userMS/pom.xml" />
+        <option value="$PROJECT_DIR$/accountMS/pom.xml" />
+        <option value="$PROJECT_DIR$/authMS/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/gateawayMS/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

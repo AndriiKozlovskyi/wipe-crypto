@@ -1,0 +1,14 @@
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/dtos/UserResponse.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/config/BeanConfig.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/UserRepository.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/UserService.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/messaging/RabbitMQConfiguration.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/exc/NotFoundException.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/dtos/RegisterRequest.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/User.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/dtos/AuthUserDto.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/enums/Role.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/Main.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/dto/UserMessage.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/messaging/UserMessageProducer.java
+/home/towerka/IdeaProjects/wipe-crypto/userMS/src/main/java/org/example/user/UserController.java
