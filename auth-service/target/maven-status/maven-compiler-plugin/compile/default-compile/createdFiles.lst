@@ -4,7 +4,6 @@ com/safalifter/authservice/service/CustomUserDetails.class
 com/safalifter/authservice/dto/TokenDto$TokenDtoBuilder.class
 com/safalifter/authservice/config/AuthConfig.class
 com/safalifter/authservice/exc/ValidationException$ValidationExceptionBuilder.class
-com/safalifter/authservice/config/FeignConfig$CustomErrorDecoder.class
 com/safalifter/authservice/request/RegisterRequest.class
 com/safalifter/authservice/client/UserServiceClient.class
 com/safalifter/authservice/config/JwtAuthenticationFilter.class

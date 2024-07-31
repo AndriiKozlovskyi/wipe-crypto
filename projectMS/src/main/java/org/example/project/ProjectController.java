@@ -5,6 +5,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.example.project.dto.ProjectRequest;
 import org.example.project.dto.ProjectResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,15 +37,16 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@RequestBody ProjectRequest projectRequest) {
-        return ResponseEntity.ok(projectService.create(projectRequest));
+    public ResponseEntity<ProjectResponse> createProject(@RequestBody ProjectRequest projectRequest, @RequestHeader HttpHeaders headers) {
+
+        return ResponseEntity.ok(projectService.create(projectRequest, headers));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectResponse> updateProject(@RequestBody ProjectRequest projectRequest, @PathVariable Integer id) {
+    public ResponseEntity<ProjectResponse> updateProject(@RequestBody ProjectRequest projectRequest, @PathVariable Integer id, @RequestHeader HttpHeaders headers) {
         ProjectResponse project = null;
         try {
-            project = projectService.update(id, projectRequest);
+            project = projectService.update(id, projectRequest, headers);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

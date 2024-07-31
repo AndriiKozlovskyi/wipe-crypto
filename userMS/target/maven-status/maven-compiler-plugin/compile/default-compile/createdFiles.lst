@@ -9,6 +9,7 @@ org/example/config/BeanConfig.class
 org/example/user/UserService.class
 org/example/user/User.class
 org/example/messaging/RabbitMQConfiguration.class
+org/example/client/AuthServiceClient.class
 org/example/user/UserController.class
 org/example/user/dtos/RegisterRequest.class
 org/example/enums/Role.class

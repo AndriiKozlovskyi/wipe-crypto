@@ -6,12 +6,12 @@ import com.safalifter.authservice.request.LoginRequest;
 import com.safalifter.authservice.request.RegisterRequest;
 import com.safalifter.authservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("${base-path}/auth")
@@ -34,5 +34,11 @@ public class AuthController {
         }
         return ResponseEntity.ok(user);
 
+    }
+
+    @GetMapping
+    public ResponseEntity<String> getUsername(@RequestHeader HttpHeaders headers) {
+        String token = Objects.requireNonNull(headers.get("Authorization")).get(0).substring(7);
+        return ResponseEntity.ok(authService.getUsernameFromBearer(token));
     }
 }

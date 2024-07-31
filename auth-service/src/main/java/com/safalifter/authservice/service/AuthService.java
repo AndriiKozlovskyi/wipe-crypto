@@ -9,6 +9,7 @@ import com.safalifter.authservice.request.LoginRequest;
 import com.safalifter.authservice.request.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,5 +36,9 @@ public class AuthService {
 
     public RegisterDto register(RegisterRequest request) throws Exception {
         return userServiceClient.createUser(request).getBody();
+    }
+
+    public String getUsernameFromBearer(String token) {
+        return jwtService.extractUsername(token);
     }
 }

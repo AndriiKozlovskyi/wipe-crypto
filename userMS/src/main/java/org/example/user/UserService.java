@@ -3,10 +3,12 @@ package org.example.user;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import org.example.client.AuthServiceClient;
 import org.example.enums.Role;
 import org.example.exc.NotFoundException;
 import org.example.user.dtos.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,8 @@ public class UserService {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    AuthServiceClient authServiceClient;
 
     public User create(RegisterRequest request) {
         User user = new User();
@@ -84,5 +88,10 @@ public class UserService {
     protected User findUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    public User getUserFromHeaders(HttpHeaders headers) {
+        String username = authServiceClient.getUsername(headers).getBody();
+        return getUserByUsername(username);
     }
 }

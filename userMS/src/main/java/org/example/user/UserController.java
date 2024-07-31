@@ -6,6 +6,7 @@ import org.example.user.dtos.RegisterRequest;
 import org.example.user.dtos.UserResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,13 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Integer id) {
         return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getUserFromHeaders(@RequestHeader HttpHeaders headers) {
+        User user = userService.getUserFromHeaders(headers);
+        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
     @GetMapping("/checkUsername")
