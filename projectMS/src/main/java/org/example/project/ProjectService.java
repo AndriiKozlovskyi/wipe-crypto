@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -26,7 +27,7 @@ public class ProjectService {
     public void addMember(Integer userId, Integer projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("No found"));
-        project.getMembersIds().add(userId);
+        project.getMemberIds().add(userId);
 
         projectRepository.save(project);
     }
@@ -34,7 +35,7 @@ public class ProjectService {
     public void removeMember(Integer userId, Integer projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("No found"));
-        project.getMembersIds().removeIf(e -> e.equals(userId));
+        project.getMemberIds().removeIf(e -> e.equals(userId));
 
         projectRepository.save(project);
     }
@@ -42,7 +43,7 @@ public class ProjectService {
     public void addFollower(Integer userId, Integer projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("No found"));
-        project.getFollowersIds().add(userId);
+        project.getFollowerIds().add(userId);
 
         projectRepository.save(project);
     }
@@ -50,13 +51,19 @@ public class ProjectService {
     public void removeFollower(Integer userId, Integer projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("No found"));
-        project.getFollowersIds().removeIf(e -> e.equals(userId));
+        project.getFollowerIds().removeIf(e -> e.equals(userId));
 
         projectRepository.save(project);
     }
 
     public Set<ProjectResponse> all() {
         Set<Project> projects = new HashSet<>(projectRepository.findAll());
+        return ProjectMapper.INSTANCE.toDtos(projects);
+    }
+
+    public Set<ProjectResponse> allForUser(Integer memberId) {
+        Set<Project> projects = projectRepository.findByMemberIdsContaining(memberId);
+
         return ProjectMapper.INSTANCE.toDtos(projects);
     }
 

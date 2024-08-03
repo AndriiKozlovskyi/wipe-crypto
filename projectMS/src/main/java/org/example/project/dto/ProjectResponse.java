@@ -14,8 +14,8 @@ public class ProjectResponse {
     private String name;
     private String link;
     private String description;
-    private Set<Integer> followersIds = new HashSet<>();
-    private Set<Integer> membersIds = new HashSet<>();
+    private Set<Integer> followerIds = new HashSet<>();
+    private Set<Integer> memberIds = new HashSet<>();
     private Integer createdBy;
     private Integer updatedBy;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")

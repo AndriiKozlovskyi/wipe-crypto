@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,8 +14,15 @@ public class EventResponse {
     private String name;
     private String link;
     private String description;
-    private Set<Integer> followersIds = new HashSet<>();
-    private Set<Integer> membersIds = new HashSet<>();
+    private Integer projectId;
+    private Set<Integer> statuses = new HashSet<>();
+    private boolean isPublic;
+    private Integer eventType;
+    private ArrayList<Integer> participantIds = new ArrayList<>();
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    private OffsetDateTime startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    private OffsetDateTime endDate;
     private Integer createdBy;
     private Integer updatedBy;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")

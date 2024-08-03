@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "user-service")
 public interface UserServiceClient {
-    @GetMapping
+    @GetMapping("/api/v1/user")
     ResponseEntity<UserResponse> getUserFromHeaders(@RequestHeader HttpHeaders headers);
 }

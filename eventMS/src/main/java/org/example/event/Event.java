@@ -3,9 +3,14 @@ package org.example.event;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.entity.TableEntity;
+import org.example.event_type.EventType;
+import org.example.status.Status;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,7 +19,7 @@ import java.util.ArrayList;
 @Entity
 @Getter
 @Table(name = "events")
-public class Event {
+public class Event implements TableEntity {
     @Id
     @GeneratedValue
     private Integer id;
@@ -22,14 +27,13 @@ public class Event {
     private String description;
     private String link;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="type_id")
+    @JoinColumn(name="event_id")
     @EqualsAndHashCode.Exclude
     private EventType eventType;
-    private ArrayList<Integer> participantsIds = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="status_id")
+    private ArrayList<Integer> participantIds = new ArrayList<>();
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
-    private Status status;
+    private Set<Status> statuses = new HashSet<>();
     private Integer projectId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime startDate;
@@ -41,4 +45,5 @@ public class Event {
     private OffsetDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime updatedAt;
+    private boolean isPublic;
 }

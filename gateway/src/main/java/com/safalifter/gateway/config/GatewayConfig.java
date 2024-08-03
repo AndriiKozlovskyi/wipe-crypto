@@ -30,6 +30,9 @@ public class GatewayConfig {
                 .route("project-service", r -> r.path("/api/v1/project/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://PROJECT-SERVICE"))
+                .route("event-service", r -> r.path("/api/v1/event/**", "/api/v1/eventType/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://EVENT-SERVICE"))
                 .build();
     }
 

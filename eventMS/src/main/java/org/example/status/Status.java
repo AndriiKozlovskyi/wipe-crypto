@@ -3,6 +3,7 @@ package org.example.status;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.entity.TableEntity;
 import org.example.event.Event;
 
 import java.time.OffsetDateTime;
@@ -14,12 +15,13 @@ import java.time.OffsetDateTime;
 @Entity
 @Getter
 @Table(name = "statuses")
-public class Status {
+public class Status implements TableEntity {
     @Id
     @GeneratedValue
     private Integer id;
     private String name;
-    @OneToMany
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
     private Integer createdBy;
     private Integer updatedBy;

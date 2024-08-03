@@ -1,10 +1,7 @@
 package org.example.project;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.TableEntity;
 
@@ -27,8 +24,10 @@ public class Project implements TableEntity {
     private String name;
     private String link;
     private String description;
-    private Set<Integer> followersIds = new HashSet<>();
-    private Set<Integer> membersIds = new HashSet<>();
+    @ElementCollection
+    private Set<Integer> followerIds = new HashSet<>();
+    @ElementCollection
+    private Set<Integer> memberIds = new HashSet<>();
     private Integer createdBy;
     private Integer updatedBy;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
