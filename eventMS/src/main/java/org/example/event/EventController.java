@@ -49,7 +49,7 @@ public class EventController {
 
     @PostMapping("/private")
     public ResponseEntity<EventResponse> createPrivateEvent(@RequestParam Integer projectId, @RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
-
+    //for commit
         return ResponseEntity.ok(eventService.createPrivate(eventRequest, headers, projectId));
     }
 
