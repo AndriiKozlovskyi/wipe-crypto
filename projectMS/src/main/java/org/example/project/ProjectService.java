@@ -25,32 +25,31 @@ public class ProjectService {
     UserServiceClient userServiceClient;
 
     public void addMember(Integer userId, Integer projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("No found"));
+        Project project = findProjectById(projectId);
+
         project.getMemberIds().add(userId);
 
         projectRepository.save(project);
     }
 
     public void removeMember(Integer userId, Integer projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("No found"));
+        Project project = findProjectById(projectId);
+
         project.getMemberIds().removeIf(e -> e.equals(userId));
 
         projectRepository.save(project);
     }
 
     public void addFollower(Integer userId, Integer projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("No found"));
+        Project project = findProjectById(projectId);
+
         project.getFollowerIds().add(userId);
 
         projectRepository.save(project);
     }
 
     public void removeFollower(Integer userId, Integer projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("No found"));
+        Project project = findProjectById(projectId);
         project.getFollowerIds().removeIf(e -> e.equals(userId));
 
         projectRepository.save(project);
@@ -68,18 +67,53 @@ public class ProjectService {
     }
 
     public ProjectResponse getById(Integer id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No found"));
+        Project project = findProjectById(id);
         return ProjectMapper.INSTANCE.toDto(project);
     }
 
-    public ProjectResponse create(ProjectRequest request, HttpHeaders headers) {
+    private Project findProjectById(Integer id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project with id: " + id + " found"));
+    }
+
+    public ProjectResponse copyProject(Integer projectId, HttpHeaders headers) {
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+        Project publicProject = findProjectById(projectId);
+        Project project = new Project();
+        project.setName(publicProject.getName());
+        project.setLink(publicProject.getLink());
+        project.setDescription(publicProject.getDescription());
+        project.setPublic(false);
+        assert user != null;
+        project.setCreatedBy(user.getId());
+        project.setCreatedAt(OffsetDateTime.now());
+        projectRepository.save(project);
+        return ProjectMapper.INSTANCE.toDto(project);
+    }
+
+    public ProjectResponse createPrivate(ProjectRequest request, HttpHeaders headers) {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
 
         Project project = new Project();
         project.setName(request.getName());
         project.setLink(request.getLink());
         project.setDescription(request.getDescription());
+        project.setPublic(false);
+        assert user != null;
+        project.setCreatedBy(user.getId());
+        project.setCreatedAt(OffsetDateTime.now());
+        projectRepository.save(project);
+        return ProjectMapper.INSTANCE.toDto(project);
+    }
+
+    public ProjectResponse createPublic(ProjectRequest request, HttpHeaders headers) {
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+
+        Project project = new Project();
+        project.setName(request.getName());
+        project.setLink(request.getLink());
+        project.setDescription(request.getDescription());
+        project.setPublic(true);
         assert user != null;
         project.setCreatedBy(user.getId());
         project.setCreatedAt(OffsetDateTime.now());
@@ -88,8 +122,7 @@ public class ProjectService {
     }
 
     public ProjectResponse update(Integer id, ProjectRequest request, HttpHeaders headers) {
-        Project project = projectRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Project with id: " + id + " not found"));
+        Project project = findProjectById(id);
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
 
         project.setName(request.getName());

@@ -7,6 +7,8 @@ import org.example.entity.TableEntity;
 import org.example.event.Event;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -20,9 +22,9 @@ public class Status implements TableEntity {
     @GeneratedValue
     private Integer id;
     private String name;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @OneToMany(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    private Set<Event> events = new HashSet<>();
     private Integer createdBy;
     private Integer updatedBy;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")

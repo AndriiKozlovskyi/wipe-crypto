@@ -55,6 +55,14 @@ public class EventService {
         return EventMapper.INSTANCE.toDtos(events);
     }
 
+    public Set<EventResponse> allForUser(HttpHeaders headers) {
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+
+        assert user != null;
+        Set<Event> events = new HashSet<>(eventRepository.findByCreatedBy(user.getId()));
+        return EventMapper.INSTANCE.toDtos(events);
+    }
+
     public Set<EventResponse> allForProject(Integer memberId) {
         Set<Event> eventSet = eventRepository.findByProjectId(memberId);
         return EventMapper.INSTANCE.toDtos(eventSet);
@@ -69,19 +77,19 @@ public class EventService {
         return EventMapper.INSTANCE.toDto(findEventById(id));
     }
 
-    public EventResponse createPrivate(EventRequest request, HttpHeaders headers, Integer projectId) {
+    public EventResponse createPrivate(EventRequest request, HttpHeaders headers) {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
                 () -> new EntityNotFoundException("EventType with id: " + request.getEventTypeId() + " not found"));
-        Set<Status> statuses = new HashSet<>(statusRepository.findAllById(new ArrayList<>(request.getStatusesIds())));
-
+        Status status = statusRepository.findById(request.getStatusId()).orElseThrow(
+                () -> new EntityNotFoundException("Status with id: " + request.getStatusId() + " not found"));
         Event event = new Event();
         event.setName(request.getName());
         event.setLink(request.getLink());
         event.setEventType(eventType);
         event.setPublic(false);
-        event.setStatuses(statuses);
-        event.setProjectId(projectId);
+        event.setStatus(status);
+        event.setProjectId(request.getProjectId());
         event.setDescription(request.getDescription());
         assert user != null;
         event.setCreatedBy(user.getId());
@@ -93,18 +101,17 @@ public class EventService {
         return EventMapper.INSTANCE.toDto(event);
     }
 
-    public EventResponse saveEvent(Integer eventId, HttpHeaders headers) {
+    public EventResponse copyEvent(Integer eventId, HttpHeaders headers) {
         Event publicEvent = findEventById(eventId);
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         EventType eventType = publicEvent.getEventType();
-        Set<Status> statuses = new HashSet<>(publicEvent.getStatuses());
 
         Event event = new Event();
         event.setName(publicEvent.getName());
         event.setLink(publicEvent.getLink());
         event.setEventType(eventType);
         event.setPublic(false);
-        event.setStatuses(statuses);
+        event.setStatus(publicEvent.getStatus());
         event.setProjectId(publicEvent.getProjectId());
         event.setDescription(publicEvent.getDescription());
         assert user != null;
@@ -117,19 +124,17 @@ public class EventService {
         return EventMapper.INSTANCE.toDto(event);
     }
 
-    public EventResponse createPublic(EventRequest request, HttpHeaders headers, Integer projectId) {
+    public EventResponse createPublic(EventRequest request, HttpHeaders headers) {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
                 () -> new EntityNotFoundException("EventType with id: " + request.getEventTypeId() + " not found"));
-        Set<Status> statuses = new HashSet<>(statusRepository.findAllById(new ArrayList<>(request.getStatusesIds())));
-
         Event event = new Event();
         event.setName(request.getName());
         event.setLink(request.getLink());
         event.setEventType(eventType);
         event.setPublic(true);
-        event.setStatuses(statuses);
-        event.setProjectId(projectId);
+        event.setStatus(null);
+        event.setProjectId(request.getProjectId());
         event.setDescription(request.getDescription());
         assert user != null;
         event.setCreatedBy(user.getId());
@@ -147,11 +152,11 @@ public class EventService {
 
         EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
                 () -> new EntityNotFoundException("EventType with id: " + request.getEventTypeId() + " not found"));
-        Set<Status> statuses = new HashSet<>(statusRepository.findAllById(new ArrayList<>(request.getStatusesIds())));
-        event.setName(request.getName());
+        Status status = statusRepository.findById(request.getStatusId()).orElseThrow(
+                () -> new EntityNotFoundException("Status with id: " + request.getStatusId() + " not found"));        event.setName(request.getName());
         event.setLink(request.getLink());
         event.setEventType(eventType);
-        event.setStatuses(statuses);
+        event.setStatus(status);
         event.setDescription(request.getDescription());
         assert user != null;
         event.setUpdatedBy(user.getId());

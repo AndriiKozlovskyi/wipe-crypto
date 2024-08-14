@@ -36,11 +36,24 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.all());
     }
 
-    @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@RequestBody ProjectRequest projectRequest, @RequestHeader HttpHeaders headers) {
+    @PostMapping("/copy/{projectId}")
+    public ResponseEntity<ProjectResponse> copyProject(@PathVariable Integer projectId, @RequestHeader HttpHeaders headers) {
 
-        return ResponseEntity.ok(projectService.create(projectRequest, headers));
+        return ResponseEntity.ok(projectService.copyProject(projectId, headers));
     }
+
+    @PostMapping("/public")
+    public ResponseEntity<ProjectResponse> createPublicProject(@RequestBody ProjectRequest projectRequest, @RequestHeader HttpHeaders headers) {
+
+        return ResponseEntity.ok(projectService.createPublic(projectRequest, headers));
+    }
+
+    @PostMapping("/private")
+    public ResponseEntity<ProjectResponse> createPrivateProject(@RequestBody ProjectRequest projectRequest, @RequestHeader HttpHeaders headers) {
+
+        return ResponseEntity.ok(projectService.createPrivate(projectRequest, headers));
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> updateProject(@RequestBody ProjectRequest projectRequest, @PathVariable Integer id, @RequestHeader HttpHeaders headers) {

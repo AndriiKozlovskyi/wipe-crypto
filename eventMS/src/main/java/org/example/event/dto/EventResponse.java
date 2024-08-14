@@ -2,6 +2,8 @@ package org.example.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.example.event_type.dto.EventTypeResponse;
+import org.example.status.dto.StatusResponse;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -15,9 +17,9 @@ public class EventResponse {
     private String link;
     private String description;
     private Integer projectId;
-    private Set<Integer> statuses = new HashSet<>();
+    private StatusResponse status;
     private boolean isPublic;
-    private Integer eventType;
+    private EventTypeResponse eventType;
     private ArrayList<Integer> participantIds = new ArrayList<>();
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime startDate;

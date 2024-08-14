@@ -31,9 +31,10 @@ public class Event implements TableEntity {
     @EqualsAndHashCode.Exclude
     private EventType eventType;
     private ArrayList<Integer> participantIds = new ArrayList<>();
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="event_status_id")
     @EqualsAndHashCode.Exclude
-    private Set<Status> statuses = new HashSet<>();
+    private Status status;
     private Integer projectId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime startDate;

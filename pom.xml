@@ -35,6 +35,7 @@
         <module>eureka-server</module>
         <module>gateway</module>
         <module>eventMS</module>
+        <module>accountMS</module>
         <module>projectMS</module>
     </modules>
     <dependencies>

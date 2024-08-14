@@ -30,6 +30,11 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<Set<EventResponse>> allForUser(@RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(eventService.allForUser(headers));
+    }
+
     @GetMapping("/all")
     public ResponseEntity<Set<EventResponse>> all() {
         return ResponseEntity.ok(eventService.all());
@@ -40,23 +45,21 @@ public class EventController {
         return ResponseEntity.ok(eventService.allForProject(projectId));
     }
 
-    @PostMapping("/save/{eventId}")
-    public ResponseEntity<EventResponse> saveEvent(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
+    @PostMapping("/copy/{eventId}")
+    public ResponseEntity<EventResponse> copyEvent(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
 
-        return ResponseEntity.ok(eventService.saveEvent(eventId, headers));
+        return ResponseEntity.ok(eventService.copyEvent(eventId, headers));
     }
 
-
     @PostMapping("/private")
-    public ResponseEntity<EventResponse> createPrivateEvent(@RequestParam Integer projectId, @RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
-    //for commit
-        return ResponseEntity.ok(eventService.createPrivate(eventRequest, headers, projectId));
+    public ResponseEntity<EventResponse> createPrivateEvent(@RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(eventService.createPrivate(eventRequest, headers));
     }
 
     @PostMapping("/public")
-    public ResponseEntity<EventResponse> createPublicEvent(@RequestParam Integer projectId, @RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
+    public ResponseEntity<EventResponse> createPublicEvent(@RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
 
-        return ResponseEntity.ok(eventService.createPublic(eventRequest, headers, projectId));
+        return ResponseEntity.ok(eventService.createPublic(eventRequest, headers));
     }
 
     @PutMapping("/{id}")

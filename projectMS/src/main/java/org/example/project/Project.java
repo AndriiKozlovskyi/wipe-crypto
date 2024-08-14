@@ -34,4 +34,5 @@ public class Project implements TableEntity {
     private OffsetDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime updatedAt;
+    private boolean isPublic;
 }

@@ -39,6 +39,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
         </processorPath>
         <module name="auth-service" />
+        <module name="eventMS" />
         <module name="eureka-server" />
         <module name="gateway" />
         <module name="projectMS" />
