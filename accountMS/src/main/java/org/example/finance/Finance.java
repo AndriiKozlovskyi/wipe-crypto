@@ -1,4 +1,4 @@
-package org.example.account;
+package org.example.finance;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
+import org.example.account.Account;
 
 import java.time.OffsetDateTime;
 
