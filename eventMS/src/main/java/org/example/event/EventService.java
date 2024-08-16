@@ -1,9 +1,11 @@
 package org.example.event;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.client.ProjectServiceClient;
 import org.example.client.UserServiceClient;
 import org.example.event.dto.EventRequest;
 import org.example.event.dto.EventResponse;
+import org.example.event.dto.ProjectResponse;
 import org.example.event.dto.UserResponse;
 import org.example.event_type.EventType;
 import org.example.event_type.EventTypeRepository;
@@ -31,6 +33,8 @@ public class EventService {
     EventRepository eventRepository;
     @Autowired
     UserServiceClient userServiceClient;
+    @Autowired
+    ProjectServiceClient projectServiceClient;
     @Autowired
     EventTypeRepository eventTypeRepository;
     @Autowired
@@ -84,11 +88,14 @@ public class EventService {
         Status status = statusRepository.findById(request.getStatusId()).orElseThrow(
                 () -> new EntityNotFoundException("Status with id: " + request.getStatusId() + " not found"));
         Event event = new Event();
+        ProjectResponse projectResponse = projectServiceClient.getProjectById(request.getProjectId()).getBody();
+
         event.setName(request.getName());
         event.setLink(request.getLink());
         event.setEventType(eventType);
         event.setPublic(false);
         event.setStatus(status);
+        assert projectResponse != null;
         event.setProjectId(request.getProjectId());
         event.setDescription(request.getDescription());
         assert user != null;
@@ -101,7 +108,27 @@ public class EventService {
         return EventMapper.INSTANCE.toDto(event);
     }
 
+    public EventResponse participate(Integer eventId, HttpHeaders headers) {
+        Event event = copyEventLocal(eventId, headers);
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+        assert user != null;
+        addParticipant(user.getId(), event.getId());
+        return EventMapper.INSTANCE.toDto(event);
+    }
+
+    public EventResponse unparticipate(Integer eventId, HttpHeaders headers) {
+        Event publicEvent = findEventById(eventId);
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+        assert user != null;
+        removeParticipant(user.getId(), publicEvent.getId());
+        return EventMapper.INSTANCE.toDto(publicEvent);
+    }
+
     public EventResponse copyEvent(Integer eventId, HttpHeaders headers) {
+        return EventMapper.INSTANCE.toDto(copyEventLocal(eventId, headers));
+    }
+
+    private Event copyEventLocal(Integer eventId, HttpHeaders headers) {
         Event publicEvent = findEventById(eventId);
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         EventType eventType = publicEvent.getEventType();
@@ -120,20 +147,23 @@ public class EventService {
         event.setStartDate(publicEvent.getStartDate());
         event.setEndDate(publicEvent.getEndDate());
 
-        eventRepository.save(event);
-        return EventMapper.INSTANCE.toDto(event);
+        return eventRepository.save(event);
     }
 
     public EventResponse createPublic(EventRequest request, HttpHeaders headers) {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
                 () -> new EntityNotFoundException("EventType with id: " + request.getEventTypeId() + " not found"));
+
+        ProjectResponse projectResponse = projectServiceClient.getProjectById(request.getProjectId()).getBody();
+
         Event event = new Event();
         event.setName(request.getName());
         event.setLink(request.getLink());
         event.setEventType(eventType);
         event.setPublic(true);
         event.setStatus(null);
+        assert projectResponse != null;
         event.setProjectId(request.getProjectId());
         event.setDescription(request.getDescription());
         assert user != null;

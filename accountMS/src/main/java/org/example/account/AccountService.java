@@ -3,6 +3,9 @@ package org.example.account;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.account.dtos.AccountRequest;
 import org.example.account.dtos.AccountResponse;
+import org.example.account.dtos.TaskRequest;
+import org.example.account.dtos.TaskResponse;
+import org.example.client.TaskServiceClient;
 import org.example.client.UserResponse;
 import org.example.client.UserServiceClient;
 import org.example.mapper.AccountMapper;
@@ -21,6 +24,8 @@ public class AccountService {
     AccountRepository accountRepository;
     @Autowired
     UserServiceClient userServiceClient;
+    @Autowired
+    TaskServiceClient taskServiceClient;
 
     public Set<AccountResponse> all() {
         Set<Account> accountSet = new HashSet<>(accountRepository.findAll());
@@ -28,11 +33,9 @@ public class AccountService {
     }
 
     public Set<AccountResponse> allForEvent(Integer eventId) {
-
         Set<Account> accountSet = new HashSet<>(accountRepository.findByEventId(eventId));
         return AccountMapper.INSTANCE.toDtos(accountSet);
     }
-
 
     public Set<Account> findAccountsByIds(Set<Integer> ids) {
         return new HashSet<>(accountRepository.findAllById(new ArrayList<>(ids)));
@@ -47,8 +50,19 @@ public class AccountService {
         return AccountMapper.INSTANCE.toDto(findAccountById(id));
     }
 
+    public Set<AccountResponse> createMany(Integer amount, Integer eventId, AccountRequest accountRequest, HttpHeaders headers) {
+        Set<AccountResponse> responses = new HashSet<>();
+        for (int i = 1; i <= amount; i ++) {
+            AccountResponse accountResponse = create(eventId, new AccountRequest("acc" + i), headers);
+            responses.add(accountResponse);
+        }
+
+        return responses;
+    }
+
     public AccountResponse create(Integer eventId, AccountRequest accountRequest, HttpHeaders headers) {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+        Set<TaskResponse> tasks = taskServiceClient.allForEvent(eventId).getBody();
 
         Account account = new Account();
         account.setName(accountRequest.getName());
@@ -56,7 +70,18 @@ public class AccountService {
         assert user != null;
         account.setCreatedBy(user.getId());
         account.setCreatedAt(OffsetDateTime.now());
-        accountRepository.save(account);
+        Account accountSaved = accountRepository.save(account);
+
+        assert tasks != null;
+        for(TaskResponse taskResponse : tasks) {
+            TaskRequest taskRequest = new TaskRequest(
+                    taskResponse.getName(),
+                    taskResponse.isCompleted(),
+                    taskResponse.getEventId(),
+                    taskResponse.getAccountId());
+
+            taskServiceClient.createTask(eventId, accountSaved.getId(), taskRequest, headers);
+        }
         return AccountMapper.INSTANCE.toDto(account);
     }
 
@@ -75,5 +100,4 @@ public class AccountService {
     public void delete(Integer id) {
         accountRepository.deleteById(id);
     }
-
 }

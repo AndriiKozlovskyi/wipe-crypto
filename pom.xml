@@ -36,6 +36,7 @@
         <module>gateway</module>
         <module>eventMS</module>
         <module>accountMS</module>
+        <module>taskMS</module>
         <module>projectMS</module>
     </modules>
     <dependencies>

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.account.Account;
+import org.example.entity.TableEntity;
 
 import java.time.OffsetDateTime;
 
@@ -14,11 +15,10 @@ import java.time.OffsetDateTime;
 @Entity
 @Getter
 @Table(name = "finances")
-public class Finance {
+public class Finance implements TableEntity {
     @Id
     @GeneratedValue
     private Integer id;
-    private String type;
     private double amount;
     private String tokenName;
     @ManyToOne(fetch = FetchType.LAZY)

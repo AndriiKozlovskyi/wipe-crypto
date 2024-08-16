@@ -31,7 +31,7 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<Set<ProjectResponse>> all() {
         return ResponseEntity.ok(projectService.all());
     }

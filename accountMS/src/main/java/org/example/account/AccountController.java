@@ -41,9 +41,14 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AccountResponse> createAccount(@RequestParam Integer eventId, @RequestBody AccountRequest accountRequest, @RequestHeader HttpHeaders headers) {
-        return ResponseEntity.ok(accountService.create(eventId, accountRequest, headers));
+    public ResponseEntity<Set<AccountResponse>> createAccounts(@RequestParam(defaultValue = "1") Integer amount, @RequestParam Integer eventId, @RequestBody AccountRequest accountRequest, @RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(accountService.createMany(amount, eventId, accountRequest, headers));
     }
+
+//    @PostMapping
+//    public ResponseEntity<Set<AccountResponse>> createAccount(@RequestParam Integer amount, @RequestParam Integer eventId, @RequestBody AccountRequest accountRequest, @RequestHeader HttpHeaders headers) {
+//        return ResponseEntity.ok(accountService.createMany(amount, eventId, accountRequest, headers));
+//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<AccountResponse> updateAccount(@RequestBody AccountRequest eventRequest, @PathVariable Integer id, @RequestHeader HttpHeaders headers) {

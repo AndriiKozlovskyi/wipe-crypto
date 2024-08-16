@@ -45,10 +45,19 @@ public class EventController {
         return ResponseEntity.ok(eventService.allForProject(projectId));
     }
 
-    @PostMapping("/copy/{eventId}")
-    public ResponseEntity<EventResponse> copyEvent(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
+//    @PostMapping("/copy/{eventId}")
+//    public ResponseEntity<EventResponse> copyEvent(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
+//        return ResponseEntity.ok(eventService.copyEvent(eventId, headers));
+//    }
 
-        return ResponseEntity.ok(eventService.copyEvent(eventId, headers));
+    @PostMapping("/participate/{eventId}")
+    public ResponseEntity<EventResponse> participate(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(eventService.participate(eventId, headers));
+    }
+
+    @PostMapping("/unparticipate/{eventId}")
+    public ResponseEntity<EventResponse> unparticipate(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(eventService.unparticipate(eventId, headers));
     }
 
     @PostMapping("/private")
