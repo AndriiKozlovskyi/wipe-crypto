@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @RestController
@@ -19,36 +20,42 @@ public class AccountController {
     @Autowired
     AccountService accountService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AccountResponse> getById(@PathVariable Integer id) {
-        AccountResponse event = null;
+    @GetMapping
+    public ResponseEntity<?> getTasks(
+            @RequestParam(required = false) Integer eventId,
+            @RequestParam(required = false) Integer id
+    ) {
+        Set<AccountResponse> accounts = null;
+
         try {
-            event = accountService.getById(id);
+            if (eventId != null) {
+                accounts = accountService.allForEvent(eventId);
+            } else if (id != null) {
+                return ResponseEntity.ok(accountService.getById(id));
+            } else {
+                accounts = accountService.all();
+            }
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(event);
-    }
 
-    @GetMapping("/all")
-    public ResponseEntity<Set<AccountResponse>> all() {
-        return ResponseEntity.ok(accountService.all());
-    }
-
-    @GetMapping
-    public ResponseEntity<Set<AccountResponse>> allForEvent(@RequestParam Integer eventId) {
-        return ResponseEntity.ok(accountService.allForEvent(eventId));
+        return ResponseEntity.ok(accounts);
     }
 
     @PostMapping
-    public ResponseEntity<Set<AccountResponse>> createAccounts(@RequestParam(defaultValue = "1") Integer amount, @RequestParam Integer eventId, @RequestBody AccountRequest accountRequest, @RequestHeader HttpHeaders headers) {
-        return ResponseEntity.ok(accountService.createMany(amount, eventId, accountRequest, headers));
+    public ResponseEntity<?> createAccounts(@RequestParam(defaultValue = "1") Integer amount, @RequestParam Integer eventId, @RequestBody AccountRequest accountRequest, @RequestHeader HttpHeaders headers) {
+        Set<AccountResponse> responses = new HashSet<>();
+        try {
+            if (amount != 1) {
+                responses = accountService.createMany(amount, eventId, accountRequest, headers);
+            } else {
+                return ResponseEntity.ok(accountService.create(eventId, accountRequest, headers));
+            }
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(responses);
     }
-
-//    @PostMapping
-//    public ResponseEntity<Set<AccountResponse>> createAccount(@RequestParam Integer amount, @RequestParam Integer eventId, @RequestBody AccountRequest accountRequest, @RequestHeader HttpHeaders headers) {
-//        return ResponseEntity.ok(accountService.createMany(amount, eventId, accountRequest, headers));
-//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<AccountResponse> updateAccount(@RequestBody AccountRequest eventRequest, @PathVariable Integer id, @RequestHeader HttpHeaders headers) {

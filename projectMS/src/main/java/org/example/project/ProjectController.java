@@ -36,12 +36,6 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.all());
     }
 
-    @PostMapping("/copy/{projectId}")
-    public ResponseEntity<ProjectResponse> copyProject(@PathVariable Integer projectId, @RequestHeader HttpHeaders headers) {
-
-        return ResponseEntity.ok(projectService.copyProject(projectId, headers));
-    }
-
     @PostMapping("/public")
     public ResponseEntity<ProjectResponse> createPublicProject(@RequestBody ProjectRequest projectRequest, @RequestHeader HttpHeaders headers) {
 

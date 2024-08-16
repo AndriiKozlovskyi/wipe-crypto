@@ -36,6 +36,9 @@ public class GatewayConfig {
                 .route("account-service", r -> r.path("/api/v1/account/**", "/api/v1/finance/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://ACCOUNT-SERVICE"))
+                .route("task-service", r -> r.path("/api/v1/task/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://TASK-SERVICE"))
                 .build();
     }
 

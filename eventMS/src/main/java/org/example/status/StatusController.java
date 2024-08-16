@@ -2,6 +2,7 @@ package org.example.status;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
+import org.example.event.dto.EventResponse;
 import org.example.status.dto.StatusRequest;
 import org.example.status.dto.StatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,23 @@ public class StatusController {
     @Autowired
     StatusService statusService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<StatusResponse> getById(@PathVariable Integer id) {
-        StatusResponse event = null;
+    @GetMapping
+    public ResponseEntity<?> getStatuses(
+            @RequestParam(required = false) Integer id
+    ) {
+        Set<StatusResponse> statusResponses = null;
+
         try {
-            event = statusService.getById(id);
+            if (id != null) {
+                return ResponseEntity.ok(statusService.getById(id));
+            } else {
+                statusResponses = statusService.all();
+            }
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(event);
-    }
 
-    @GetMapping("/all")
-    public ResponseEntity<Set<StatusResponse>> all() {
-        return ResponseEntity.ok(statusService.all());
+        return ResponseEntity.ok(statusResponses);
     }
 
     @PostMapping

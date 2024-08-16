@@ -19,43 +19,29 @@ public class TaskController {
     @Autowired
     TaskService taskService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> getById(@PathVariable Integer id) {
-        TaskResponse event = null;
-        try {
-            event = taskService.getById(id);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(event);
-    }
-
     @GetMapping
-    public ResponseEntity<Set<TaskResponse>> allForEvent(@RequestParam Integer eventId) {
-        Set<TaskResponse> event = null;
+    public ResponseEntity<?> getTasks(
+            @RequestParam(required = false) Integer eventId,
+            @RequestParam(required = false) Integer accountId,
+            @RequestParam(required = false) Integer id
+    ) {
+        Set<TaskResponse> tasks = null;
+
         try {
-            event = taskService.getForEvent(eventId);
+            if (eventId != null) {
+                tasks = taskService.getForEvent(eventId);
+            } else if (accountId != null) {
+                tasks = taskService.getForAccount(accountId);
+            } else if (id != null) {
+                return ResponseEntity.ok(taskService.getById(id));
+            }else {
+                tasks = taskService.all();
+            }
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(event);
-    }
 
-    @GetMapping
-    public ResponseEntity<Set<TaskResponse>> allForAccount(@RequestParam Integer accountId) {
-        Set<TaskResponse> event = null;
-        try {
-            event = taskService.getForAccount(accountId);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(event);
-    }
-
-
-    @GetMapping("/all")
-    public ResponseEntity<Set<TaskResponse>> all() {
-        return ResponseEntity.ok(taskService.all());
+        return ResponseEntity.ok(tasks);
     }
 
     @PostMapping

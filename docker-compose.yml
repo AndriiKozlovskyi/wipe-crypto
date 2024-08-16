@@ -9,18 +9,6 @@ services:
     ports:
       - "8761:8761"
 
-  gateway:
-    image: "gateway"
-    container_name: gateway
-    build:
-      context: ./gateway
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
-    ports:
-      - "8082:8082"
-    depends_on:
-      - eureka
-
   user-ms-app:
     container_name: user-ms-app
     image: 'user-ms-app:latest'
@@ -36,6 +24,49 @@ services:
       - eureka
     links:
       - postgres-user-db
+      - eureka
+
+  auth-ms-app:
+    container_name: auth-service-app
+    image: "auth-service-app:latest"
+    build:
+      context: ./auth-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka
+    links:
+      - eureka
+
+  gateway:
+    image: "gateway"
+    container_name: gateway
+    build:
+      context: ./gateway
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka
+
+  project-ms-app:
+    container_name: project-ms-app
+    image: 'project-ms-app:latest'
+    build:
+      context: ./projectMS
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-project-db:5434/project
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres-project-db
+      - eureka
+    links:
+      - postgres-project-db
       - eureka
 
   event-ms-app:
@@ -72,36 +103,21 @@ services:
       - postgres-account-db
       - eureka
 
-
-  project-ms-app:
-    container_name: project-ms-app
-    image: 'project-ms-app:latest'
+  task-ms-app:
+    container_name: task-ms-app
+    image: 'task-ms-app:latest'
     build:
-      context: ./projectMS
+      context: ./taskMS
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-project-db:5434/project
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-task-db:5437/task
     ports:
-      - "8083:8083"
+      - "8086:8086"
     depends_on:
-      - postgres-project-db
+      - postgres-task-db
       - eureka
     links:
-      - postgres-project-db
-      - eureka
-
-  auth-ms-app:
-    container_name: auth-service-app
-    image: "auth-service-app:latest"
-    build:
-      context: ./auth-service
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
-    ports:
-      - "8081:8081"
-    depends_on:
-      - eureka
-    links:
+      - postgres-task-db
       - eureka
 
   postgres-user-db:
@@ -114,6 +130,17 @@ services:
     command: -p 5433
     ports:
       - "5433:5433"
+
+  postgres-project-db:
+    container_name: postgres-project-db
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: project
+    command: -p 5434
+    ports:
+      - "5434:5434"
 
   postgres-event-db:
     container_name: postgres-event-db
@@ -137,14 +164,15 @@ services:
     ports:
       - "5436:5436"
 
-  postgres-project-db:
-    container_name: postgres-project-db
+  postgres-task-db:
+    container_name: postgres-task-db
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: project
-    command: -p 5434
+      POSTGRES_DB: task
+    command: -p 5437
     ports:
-      - "5434:5434"
+      - "5437:5437"
+
 

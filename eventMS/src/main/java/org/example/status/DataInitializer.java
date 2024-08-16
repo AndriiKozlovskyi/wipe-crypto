@@ -1,25 +1,74 @@
 package org.example.status;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component
+import java.util.HashSet;
+
+@Configuration
 public class DataInitializer {
+
     @Autowired
     StatusRepository statusRepository;
 
-//    @PostConstruct
-//    public void init() {
-//        // Initialize default statuses
-//        if (statusRepository.count() == 0) { // Check if the statuses are already initialized
-//            Status status1 = new Status("NEW");
-//            Status status2 = new Status("IN_PROGRESS");
-//            Status status3 = new Status("COMPLETED");
-//
-//            // Save them to the repository
-//            statusRepository.save(status1);
-//            statusRepository.save(status2);
-//            statusRepository.save(status3);
-//        }
-//    }
+    @Bean
+    @Transactional
+    public CommandLineRunner initUsers(StatusRepository statusRepository) {
+        return args -> {
+            if (statusRepository.count() == 0) {
+                Status statusTodo = Status.builder()
+                        .name("todo")
+                        .events(new HashSet<>())
+                        .createdAt(null)
+                        .createdBy(null)
+                        .updatedBy(null)
+                        .updatedAt(null)
+                        .build();
+                Status statusDeposited = Status.builder()
+                        .name("deposited")
+                        .events(new HashSet<>())
+                        .createdAt(null)
+                        .createdBy(null)
+                        .updatedBy(null)
+                        .updatedAt(null)
+                        .build();
+                Status statusRewarded = Status.builder()
+                        .name("rewarded")
+                        .events(new HashSet<>())
+                        .createdAt(null)
+                        .createdBy(null)
+                        .updatedBy(null)
+                        .updatedAt(null)
+                        .build();
+                Status statusRevenue = Status.builder()
+                        .name("revenue")
+                        .events(new HashSet<>())
+                        .createdAt(null)
+                        .createdBy(null)
+                        .updatedBy(null)
+                        .updatedAt(null)
+                        .build();
+                Status statusFailed = Status.builder()
+                        .name("failed")
+                        .events(new HashSet<>())
+                        .createdAt(null)
+                        .createdBy(null)
+                        .updatedBy(null)
+                        .updatedAt(null)
+                        .build();
+
+                statusRepository.save(statusTodo);
+                statusRepository.save(statusDeposited);
+                statusRepository.save(statusRewarded);
+                statusRepository.save(statusRevenue);
+                statusRepository.save(statusFailed);
+
+            }
+        };
+    }
 }

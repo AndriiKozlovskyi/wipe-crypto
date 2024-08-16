@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.event_type.dto.EventTypeRequest;
 import org.example.event_type.dto.EventTypeResponse;
+import org.example.status.dto.StatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -19,20 +20,23 @@ public class EventTypeController {
     @Autowired
     EventTypeService eventTypeService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EventTypeResponse> getById(@PathVariable Integer id) {
-        EventTypeResponse event = null;
+    @GetMapping
+    public ResponseEntity<?> getEventTypes(
+            @RequestParam(required = false) Integer id
+    ) {
+        Set<EventTypeResponse> eventTypeResponses = null;
+
         try {
-            event = eventTypeService.getById(id);
+            if (id != null) {
+                return ResponseEntity.ok(eventTypeService.getById(id));
+            } else {
+                eventTypeResponses = eventTypeService.all();
+            }
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(event);
-    }
 
-    @GetMapping("/all")
-    public ResponseEntity<Set<EventTypeResponse>> all() {
-        return ResponseEntity.ok(eventTypeService.all());
+        return ResponseEntity.ok(eventTypeResponses);
     }
 
     @PostMapping

@@ -6,6 +6,7 @@ import org.example.event.dto.EventRequest;
 import org.example.event.dto.EventResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,36 +20,32 @@ public class EventController {
     @Autowired
     EventService eventService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EventResponse> getById(@PathVariable Integer id) {
-        EventResponse event = null;
-        try {
-            event = eventService.getById(id);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(event);
-    }
-
-    @GetMapping("/user")
+    @GetMapping("/forUser")
     public ResponseEntity<Set<EventResponse>> allForUser(@RequestHeader HttpHeaders headers) {
         return ResponseEntity.ok(eventService.allForUser(headers));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Set<EventResponse>> all() {
-        return ResponseEntity.ok(eventService.all());
-    }
-
     @GetMapping
-    public ResponseEntity<Set<EventResponse>> allForProject(@RequestParam Integer projectId) {
-        return ResponseEntity.ok(eventService.allForProject(projectId));
-    }
+    public ResponseEntity<?> getEvents(
+            @RequestParam(required = false) Integer projectId,
+            @RequestParam(required = false) Integer id
+    ) {
+        Set<EventResponse> events = null;
 
-//    @PostMapping("/copy/{eventId}")
-//    public ResponseEntity<EventResponse> copyEvent(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
-//        return ResponseEntity.ok(eventService.copyEvent(eventId, headers));
-//    }
+        try {
+            if (projectId != null) {
+                events = eventService.allForProject(projectId);
+            } else if (id != null) {
+                return ResponseEntity.ok(eventService.getById(id));
+            } else {
+                events = eventService.all();
+            }
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(events);
+    }
 
     @PostMapping("/participate/{eventId}")
     public ResponseEntity<EventResponse> participate(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
@@ -60,15 +57,13 @@ public class EventController {
         return ResponseEntity.ok(eventService.unparticipate(eventId, headers));
     }
 
-    @PostMapping("/private")
-    public ResponseEntity<EventResponse> createPrivateEvent(@RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
-        return ResponseEntity.ok(eventService.createPrivate(eventRequest, headers));
-    }
-
-    @PostMapping("/public")
-    public ResponseEntity<EventResponse> createPublicEvent(@RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
-
-        return ResponseEntity.ok(eventService.createPublic(eventRequest, headers));
+    @PostMapping
+    public ResponseEntity<EventResponse> create(@RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
+        try {
+            return ResponseEntity.ok(eventService.create(eventRequest, headers));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @PutMapping("/{id}")
@@ -78,36 +73,20 @@ public class EventController {
             event = eventService.update(id, eventRequest, headers);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(event);
     }
 
-    @PutMapping("/{eventId}/addParticipant/{userId}")
-    public ResponseEntity<String> addParticipant(@PathVariable Integer eventId, @PathVariable Integer userId) {
-        try {
-            eventService.addParticipant(userId, eventId);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok("Participant now participates event");
-    }
-
-    @PutMapping("/{eventId}/removeParticipant/{userId}")
-    public ResponseEntity<String> removeParticipant(@PathVariable Integer eventId, @PathVariable Integer userId) {
-        try {
-            eventService.removeParticipant(userId, eventId);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok("Participant removed from event");
-    }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteEvent(@PathVariable Integer id, @RequestHeader HttpHeaders headers) {
         try {
-            eventService.delete(id);
+            eventService.delete(id, headers);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.noContent().build();
     }
