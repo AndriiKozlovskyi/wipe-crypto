@@ -1,6 +1,7 @@
 package org.example.user;
 
 import jakarta.validation.Valid;
+import org.example.exc.NoPermissionsException;
 import org.example.user.dtos.AuthUserDto;
 import org.example.user.dtos.RegisterRequest;
 import org.example.user.dtos.UserResponse;
@@ -33,6 +34,16 @@ public class UserController {
         UserResponse o = modelMapper.map(user, UserResponse.class);
         System.out.println(o);
         return ResponseEntity.ok(o);
+    }
+
+    @PostMapping("/{userId}/grant")
+    public ResponseEntity<?> grantRole(@PathVariable Integer userId, @RequestParam String role, @RequestHeader HttpHeaders headers) {
+        try {
+            userService.grantRole(userId, role, headers);
+        } catch (NoPermissionsException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")

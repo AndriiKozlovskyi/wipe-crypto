@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -18,7 +16,7 @@ public class DataInitializer {
 
     @Bean
     @Transactional
-    public CommandLineRunner initUsers(StatusRepository statusRepository) {
+    public CommandLineRunner initStatuses(StatusRepository statusRepository) {
         return args -> {
             if (statusRepository.count() == 0) {
                 Status statusTodo = Status.builder()

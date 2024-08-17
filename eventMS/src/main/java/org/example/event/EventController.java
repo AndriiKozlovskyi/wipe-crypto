@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.event.dto.EventRequest;
 import org.example.event.dto.EventResponse;
+import org.example.exceptions.NoPermissionsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -61,9 +62,26 @@ public class EventController {
     public ResponseEntity<EventResponse> create(@RequestBody EventRequest eventRequest, @RequestHeader HttpHeaders headers) {
         try {
             return ResponseEntity.ok(eventService.create(eventRequest, headers));
-        } catch (Exception e) {
+        } catch (NoPermissionsException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+    }
+
+    @PutMapping("/changeVisibility/{id}")
+    public ResponseEntity<EventResponse> changeVisibility(@PathVariable Integer id, @RequestParam String visibility, @RequestHeader HttpHeaders headers) {
+        EventResponse event = null;
+        try {
+            if (visibility.equals("public")) {
+                event = eventService.makePublic(id, headers);
+            } else {
+                event = eventService.makePrivate(id, headers);
+            }
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (NoPermissionsException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(event);
     }
 
     @PutMapping("/{id}")
@@ -73,7 +91,7 @@ public class EventController {
             event = eventService.update(id, eventRequest, headers);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (Exception e) {
+        } catch (NoPermissionsException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(event);
@@ -85,7 +103,7 @@ public class EventController {
             eventService.delete(id, headers);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (Exception e) {
+        } catch (NoPermissionsException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.noContent().build();

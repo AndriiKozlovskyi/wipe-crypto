@@ -7,6 +7,7 @@ import org.example.event.dto.EventRequest;
 import org.example.event.dto.EventResponse;
 import org.example.event.dto.ProjectResponse;
 import org.example.event.dto.UserResponse;
+import org.example.exceptions.NoPermissionsException;
 import org.example.event_type.EventType;
 import org.example.event_type.EventTypeRepository;
 import org.example.mappers.EventMapper;
@@ -77,11 +78,11 @@ public class EventService {
         return EventMapper.INSTANCE.toDto(findEventById(id));
     }
 
-    public EventResponse create(EventRequest request, HttpHeaders headers) throws Exception {
+    public EventResponse create(EventRequest request, HttpHeaders headers) throws NoPermissionsException {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         assert user != null;
         if((!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) && request.isPublic()) {
-            throw new Exception("You have no rights (^_−)");
+            throw new NoPermissionsException("You have no rights (^_−)");
         }
 
         EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
@@ -109,6 +110,32 @@ public class EventService {
         event.setEndDate(request.getEndDate());
 
         eventRepository.save(event);
+        return EventMapper.INSTANCE.toDto(event);
+    }
+
+    public EventResponse makePublic(Integer eventId, HttpHeaders headers) throws NoPermissionsException {
+        Event event = copyEventLocal(eventId, headers);
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+        assert user != null;
+        if((!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) && event.getCreatedBy().equals(user.getId())) {
+            throw new NoPermissionsException("You have no rights (^_−)");
+        }
+        event.setPublic(true);
+        eventRepository.save(event);
+
+        return EventMapper.INSTANCE.toDto(event);
+    }
+
+    public EventResponse makePrivate(Integer eventId, HttpHeaders headers) throws NoPermissionsException {
+        Event event = copyEventLocal(eventId, headers);
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+        assert user != null;
+        if((!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) && event.getCreatedBy().equals(user.getId())) {
+            throw new NoPermissionsException("You have no rights (^_−)");
+        }
+        event.setPublic(false);
+        eventRepository.save(event);
+
         return EventMapper.INSTANCE.toDto(event);
     }
 
@@ -154,12 +181,12 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    public EventResponse update(Integer id, EventRequest request, HttpHeaders headers) throws Exception {
+    public EventResponse update(Integer id, EventRequest request, HttpHeaders headers) throws NoPermissionsException {
         Event event = findEventById(id);
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         assert user != null;
         if (!Objects.equals(event.getCreatedBy(), user.getId())) {
-            throw new Exception("You have no rights (^_−)");
+            throw new NoPermissionsException("You have no rights (^_−)");
         }
 
         EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
@@ -179,13 +206,13 @@ public class EventService {
         return EventMapper.INSTANCE.toDto(event);
     }
 
-    public void delete(Integer id, HttpHeaders headers) throws Exception {
+    public void delete(Integer id, HttpHeaders headers) throws NoPermissionsException {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         Event event = findEventById(id);
 
         assert user != null;
         if (!Objects.equals(event.getCreatedBy(), user.getId())) {
-            throw new Exception("You have no rights (^_−)");
+            throw new NoPermissionsException("You have no rights (^_−)");
         }
         eventRepository.deleteById(id);
     }

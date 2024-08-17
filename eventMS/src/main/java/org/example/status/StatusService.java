@@ -4,7 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.example.client.UserServiceClient;
 import org.example.event.Event;
 import org.example.event.EventService;
+import org.example.event.dto.EventResponse;
 import org.example.event.dto.UserResponse;
+import org.example.mappers.EventMapper;
 import org.example.status.Status;
 import org.example.status.dto.StatusRequest;
 import org.example.status.dto.StatusResponse;
@@ -33,6 +35,18 @@ public class StatusService {
     public Set<StatusResponse> all() {
         Set<Status> statusSet = new HashSet<>(statusRepository.findAll());
         return StatusMapper.INSTANCE.toDtos(statusSet);
+    }
+
+    public Set<StatusResponse> allForUser(HttpHeaders headers) {
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+
+        assert user != null;
+        Set<Status> statusSet = new HashSet<>(statusRepository.findByCreatedBy(user.getId()));
+        //Here we obtain all default statuses and merge them then
+        Set<Status> allStatuses = new HashSet<>(statusRepository.findByCreatedBy(null));
+        allStatuses.addAll(statusSet);
+
+        return StatusMapper.INSTANCE.toDtos(allStatuses);
     }
 
     public Set<Status> findStatusesByIds(Set<Integer> ids) {

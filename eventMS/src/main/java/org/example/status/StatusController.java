@@ -20,6 +20,11 @@ public class StatusController {
     @Autowired
     StatusService statusService;
 
+    @GetMapping("/forUser")
+    public ResponseEntity<Set<StatusResponse>> allForUser(@RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(statusService.allForUser(headers));
+    }
+
     @GetMapping
     public ResponseEntity<?> getStatuses(
             @RequestParam(required = false) Integer id

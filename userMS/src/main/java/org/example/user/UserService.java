@@ -5,6 +5,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.client.AuthServiceClient;
 import org.example.enums.Role;
+import org.example.exc.NoPermissionsException;
 import org.example.exc.NotFoundException;
 import org.example.user.dtos.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,24 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     AuthServiceClient authServiceClient;
+
+    public void grantRole(Integer userId, String role, HttpHeaders headers) {
+        User admin = getUserFromHeaders(headers);
+        if(!admin.getRole().equals(Role.ADMIN)) {
+            throw new NoPermissionsException("You have no rights (^_−)");
+        }
+
+        User user = getUserById(userId);
+
+        Role _role = switch (role) {
+            case "ADMIN" -> Role.ADMIN;
+            case "INFL" -> Role.INFL;
+            default -> null;
+        };
+
+        user.setRole(_role);
+        userRepository.save(user);
+    }
 
     public User create(RegisterRequest request) {
         User user = new User();
