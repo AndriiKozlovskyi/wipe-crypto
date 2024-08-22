@@ -8,6 +8,7 @@ import org.example.account.dtos.TaskResponse;
 import org.example.client.TaskServiceClient;
 import org.example.client.UserResponse;
 import org.example.client.UserServiceClient;
+import org.example.finance.FinanceRepository;
 import org.example.mapper.AccountMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,8 @@ public class AccountService {
     UserServiceClient userServiceClient;
     @Autowired
     TaskServiceClient taskServiceClient;
+    @Autowired
+    FinanceRepository financeRepository;
 
     public Set<AccountResponse> all() {
         Set<Account> accountSet = new HashSet<>(accountRepository.findAll());
@@ -82,6 +85,7 @@ public class AccountService {
 
             taskServiceClient.createTask(eventId, accountSaved.getId(), taskRequest, headers);
         }
+
         return AccountMapper.INSTANCE.toDto(account);
     }
 

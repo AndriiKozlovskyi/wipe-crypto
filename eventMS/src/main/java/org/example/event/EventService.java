@@ -15,12 +15,15 @@ import org.example.status.Status;
 import org.example.status.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
+import java.nio.file.AccessDeniedException;
 import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -34,36 +37,34 @@ public class EventService {
     EventTypeRepository eventTypeRepository;
     @Autowired
     StatusRepository statusRepository;
+    @Autowired
+    EventParticipationRepository eventParticipationRepository;
 
     private final String DEFAULT_STATUS = "todo";
-
-    public void addParticipant(Integer userId, Integer eventId) {
-        Event event = findEventById(eventId);
-        event.getParticipantIds().add(userId);
-
-        eventRepository.save(event);
-    }
-
-    public void removeParticipant(Integer userId, Integer eventId) {
-        Event event = findEventById(eventId);
-        event.getParticipantIds().removeIf(e -> e.equals(userId));
-
-        eventRepository.save(event);
-    }
 
     public Set<EventResponse> all() {
         Set<Event> events = new HashSet<>(eventRepository.findAll());
         return EventMapper.INSTANCE.toDtos(events);
     }
 
-    public Set<EventResponse> allForUser(HttpHeaders headers) {
+    public Set<EventResponse> getUserEvents(HttpHeaders headers) {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
 
-        assert user != null;
-        Set<Event> events = new HashSet<>(eventRepository.findByCreatedBy(user.getId()));
-        return EventMapper.INSTANCE.toDtos(events);
-    }
+        if (user == null) {
+            throw new IllegalStateException("User information could not be retrieved");
+        }
 
+        Integer userId = user.getId();
+
+        Set<Event> createdEvents = eventRepository.findByCreatedBy(userId);
+
+        Set<Event> participatedEvents = eventParticipationRepository.findEventsByParticipantId(userId);
+
+        Set<Event> allEvents = new HashSet<>(createdEvents);
+        allEvents.addAll(participatedEvents);
+
+        return EventMapper.INSTANCE.toDtos(allEvents);
+    }
     public Set<EventResponse> allForProject(Integer projectId) {
         Set<Event> eventSet = eventRepository.findByProjectId(projectId);
         return EventMapper.INSTANCE.toDtos(eventSet);
@@ -81,105 +82,123 @@ public class EventService {
     public EventResponse create(EventRequest request, HttpHeaders headers) throws NoPermissionsException {
         UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
         assert user != null;
-        if((!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) && request.isPublic()) {
+
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL") && request.isPublic()) {
             throw new NoPermissionsException("You have no rights (^_−)");
         }
 
-        EventType eventType = eventTypeRepository.findById(request.getEventTypeId()).orElseThrow(
-                () -> new EntityNotFoundException("EventType with id: " + request.getEventTypeId() + " not found"));
-        ProjectResponse projectResponse = projectServiceClient.getProjectById(request.getProjectId()).getBody();
+        EventType eventType = eventTypeRepository.findById(request.getEventTypeId())
+                .orElseThrow(() -> new EntityNotFoundException("EventType with id: " + request.getEventTypeId() + " not found"));
 
         Event event = new Event();
         event.setName(request.getName());
         event.setLink(request.getLink());
         event.setEventType(eventType);
-        event.setPublic(true);
-        if(request.isPublic()) {
-            Status status = statusRepository.findByName(DEFAULT_STATUS).orElseThrow(
-                    () -> new EntityNotFoundException("Status with name: " + DEFAULT_STATUS + " not found"));
-            event.setStatus(status);
-        } else {
-            event.setStatus(null);
-        }
-        assert projectResponse != null;
-        event.setProjectId(request.getProjectId());
         event.setDescription(request.getDescription());
         event.setCreatedBy(user.getId());
         event.setCreatedAt(OffsetDateTime.now());
         event.setStartDate(request.getStartDate());
         event.setEndDate(request.getEndDate());
+        event.setPublic(request.isPublic());
 
-        eventRepository.save(event);
-        return EventMapper.INSTANCE.toDto(event);
-    }
-
-    public EventResponse makePublic(Integer eventId, HttpHeaders headers) throws NoPermissionsException {
-        Event event = copyEventLocal(eventId, headers);
-        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
-        assert user != null;
-        if((!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) && event.getCreatedBy().equals(user.getId())) {
-            throw new NoPermissionsException("You have no rights (^_−)");
+        try {
+            ResponseEntity<ProjectResponse> response = projectServiceClient.getProjectById(request.getProjectId());
+            event.setProjectId(request.getProjectId());
+        } catch (HttpClientErrorException.NotFound e) {
+            System.out.println("Project not found, proceeding without project association.");
+        } catch (Exception e) {
+            System.out.println("Error occurred while fetching project: " + e.getMessage());
         }
-        event.setPublic(true);
-        eventRepository.save(event);
 
-        return EventMapper.INSTANCE.toDto(event);
-    }
-
-    public EventResponse makePrivate(Integer eventId, HttpHeaders headers) throws NoPermissionsException {
-        Event event = copyEventLocal(eventId, headers);
-        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
-        assert user != null;
-        if((!user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) && event.getCreatedBy().equals(user.getId())) {
-            throw new NoPermissionsException("You have no rights (^_−)");
+        if (request.isPublic()) {
+            Status status = statusRepository.findByName(DEFAULT_STATUS)
+                    .orElseThrow(() -> new EntityNotFoundException("Status with name: " + DEFAULT_STATUS + " not found"));
+            event.setStatus(status);
+        } else {
+            event.setStatus(null);
         }
-        event.setPublic(false);
+
+        eventRepository.save(event);
+        return participateInEvent(event.getId(), headers);
+    }
+
+    public EventResponse changeVisibility(Integer eventId, boolean isPublic, HttpHeaders headers) throws AccessDeniedException {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
+        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
+
+        if (user == null) {
+            throw new IllegalStateException("User information could not be retrieved");
+        }
+
+        if (!event.getCreatedBy().equals(user.getId()) && !user.getRole().equals("ADMIN") && !user.getRole().equals("INFL")) {
+            throw new AccessDeniedException("You are not authorized to make this event public");
+        }
+
+        event.setPublic(isPublic);
+        event.setUpdatedBy(user.getId());
+        event.setUpdatedAt(OffsetDateTime.now());
+
         eventRepository.save(event);
 
         return EventMapper.INSTANCE.toDto(event);
     }
 
-    public EventResponse participate(Integer eventId, HttpHeaders headers) {
-        Event event = copyEventLocal(eventId, headers);
-        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
-        assert user != null;
-        addParticipant(user.getId(), event.getId());
+    public EventResponse participateInEvent(Integer eventId, HttpHeaders headers) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
+        UserResponse participant = userServiceClient.getUserFromHeaders(headers).getBody();
+
+        if (participant == null) {
+            throw new IllegalStateException("Participant information could not be retrieved");
+        }
+
+        Optional<EventParticipation> existingParticipation = eventParticipationRepository.findByEventIdAndParticipantId(eventId, participant.getId());
+
+        if (existingParticipation.isPresent()) {
+            return EventMapper.INSTANCE.toDto(event);
+        }
+
+        EventParticipation participation = EventParticipation.builder()
+                .event(event)
+                .participantId(participant.getId())
+                .build();
+
+        event.getParticipations().add(participation);
+
+        eventRepository.save(event);
+
         return EventMapper.INSTANCE.toDto(event);
     }
 
-    public EventResponse unparticipate(Integer eventId, HttpHeaders headers) {
-        Event publicEvent = findEventById(eventId);
-        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
-        assert user != null;
-        removeParticipant(user.getId(), publicEvent.getId());
-        return EventMapper.INSTANCE.toDto(publicEvent);
+
+    public EventResponse unparticipateInEvent(Integer eventId, HttpHeaders headers) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
+        UserResponse participant = userServiceClient.getUserFromHeaders(headers).getBody();
+
+        if (participant == null) {
+            throw new IllegalStateException("Participant information could not be retrieved");
+        }
+
+        Optional<EventParticipation> existingParticipation = eventParticipationRepository.findByEventIdAndParticipantId(eventId, participant.getId());
+
+        if (existingParticipation.isPresent()) {
+            EventParticipation participation = existingParticipation.get();
+            event.getParticipations().remove(participation);
+            eventParticipationRepository.delete(participation); // Remove the participation from the database
+
+            eventRepository.save(event);
+
+            return EventMapper.INSTANCE.toDto(event);
+        } else {
+            throw new EntityNotFoundException("Participant not found in the event");
+        }
     }
 
-    public EventResponse copyEvent(Integer eventId, HttpHeaders headers) {
-        return EventMapper.INSTANCE.toDto(copyEventLocal(eventId, headers));
-    }
-
-    private Event copyEventLocal(Integer eventId, HttpHeaders headers) {
-        Event publicEvent = findEventById(eventId);
-        UserResponse user = userServiceClient.getUserFromHeaders(headers).getBody();
-        EventType eventType = publicEvent.getEventType();
-
-        Event event = new Event();
-        event.setName(publicEvent.getName());
-        event.setLink(publicEvent.getLink());
-        event.setEventType(eventType);
-        event.setPublic(false);
-        event.setStatus(publicEvent.getStatus());
-        event.setProjectId(publicEvent.getProjectId());
-        event.setDescription(publicEvent.getDescription());
-        assert user != null;
-        event.setCreatedBy(user.getId());
-        event.setCreatedAt(OffsetDateTime.now());
-        event.setStartDate(publicEvent.getStartDate());
-        event.setEndDate(publicEvent.getEndDate());
-
-        return eventRepository.save(event);
-    }
 
     public EventResponse update(Integer id, EventRequest request, HttpHeaders headers) throws NoPermissionsException {
         Event event = findEventById(id);

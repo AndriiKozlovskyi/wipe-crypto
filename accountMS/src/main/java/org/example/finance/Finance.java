@@ -19,6 +19,7 @@ public class Finance implements TableEntity {
     @Id
     @GeneratedValue
     private Integer id;
+    private String name;
     private double amount;
     private String tokenName;
     @ManyToOne(fetch = FetchType.LAZY)

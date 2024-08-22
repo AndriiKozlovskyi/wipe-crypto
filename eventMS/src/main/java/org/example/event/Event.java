@@ -9,8 +9,8 @@ import org.example.status.Status;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+
 
 @Data
 @Builder
@@ -47,4 +47,7 @@ public class Event implements TableEntity {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime updatedAt;
     private boolean isPublic;
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    private List<EventParticipation> participations = new ArrayList<>();
 }

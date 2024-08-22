@@ -23,7 +23,7 @@ public class AccountController {
     @GetMapping
     public ResponseEntity<?> getTasks(
             @RequestParam(required = false) Integer eventId,
-            @RequestParam(required = false) Integer id
+            @PathVariable(required = false) Integer id
     ) {
         Set<AccountResponse> accounts = null;
 

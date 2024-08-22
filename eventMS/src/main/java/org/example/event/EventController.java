@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Set;
 
 @RestController
@@ -21,9 +22,10 @@ public class EventController {
     @Autowired
     EventService eventService;
 
+
     @GetMapping("/forUser")
     public ResponseEntity<Set<EventResponse>> allForUser(@RequestHeader HttpHeaders headers) {
-        return ResponseEntity.ok(eventService.allForUser(headers));
+        return ResponseEntity.ok(eventService.getUserEvents(headers));
     }
 
     @GetMapping
@@ -50,12 +52,12 @@ public class EventController {
 
     @PostMapping("/participate/{eventId}")
     public ResponseEntity<EventResponse> participate(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
-        return ResponseEntity.ok(eventService.participate(eventId, headers));
+        return ResponseEntity.ok(eventService.participateInEvent(eventId, headers));
     }
 
     @PostMapping("/unparticipate/{eventId}")
     public ResponseEntity<EventResponse> unparticipate(@PathVariable Integer eventId, @RequestHeader HttpHeaders headers) {
-        return ResponseEntity.ok(eventService.unparticipate(eventId, headers));
+        return ResponseEntity.ok(eventService.unparticipateInEvent(eventId, headers));
     }
 
     @PostMapping
@@ -68,18 +70,16 @@ public class EventController {
     }
 
     @PutMapping("/changeVisibility/{id}")
-    public ResponseEntity<EventResponse> changeVisibility(@PathVariable Integer id, @RequestParam String visibility, @RequestHeader HttpHeaders headers) {
+    public ResponseEntity<EventResponse> changeVisibility(@PathVariable Integer id, @RequestParam boolean isPublic, @RequestHeader HttpHeaders headers) {
         EventResponse event = null;
         try {
-            if (visibility.equals("public")) {
-                event = eventService.makePublic(id, headers);
-            } else {
-                event = eventService.makePrivate(id, headers);
-            }
+            event = eventService.changeVisibility(id, isPublic, headers);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (NoPermissionsException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (AccessDeniedException e) {
+            throw new RuntimeException(e);
         }
         return ResponseEntity.ok(event);
     }

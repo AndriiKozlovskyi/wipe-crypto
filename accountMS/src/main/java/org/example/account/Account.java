@@ -22,7 +22,7 @@ public class Account implements TableEntity {
     @GeneratedValue
     private Integer id;
     private String name;
-    private Integer eventId;
+    private Integer eventParticipationId;
     private String notes;
     @OneToMany(fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
